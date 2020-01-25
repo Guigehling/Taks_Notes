@@ -9,13 +9,15 @@ import {
   Platform,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import ActionButton from 'react-native-action-button';
 import moment from 'moment';
 import 'moment/locale/pt-br';
 
 import todayImage from '../../assets/imgs/today.jpg';
-import commonStyle from '../commonStyles';
+import commonStyles from '../commonStyles';
 
 import Task from '../components/Task';
+import AddTask from './AddTask';
 
 export default class Agenda extends Component {
   state = {
@@ -35,6 +37,18 @@ export default class Agenda extends Component {
     ],
     visibleTasks: [],
     showDoneTasks: true,
+    showAddTask: false,
+  };
+
+  addTask = task => {
+    const tasks = [...this.state.tasks];
+    tasks.push({
+      id: Math.random(),
+      desc: task.desc,
+      estimateAt: task.date,
+      doneAt: null,
+    });
+    this.setState({tasks, showAddTask: false}, this.filterTasks);
   };
 
   filterTasks = () => {
@@ -80,13 +94,19 @@ export default class Agenda extends Component {
   render() {
     return (
       <View style={styles.container}>
+        <AddTask
+          isVisible={this.state.showAddTask}
+          onSave={this.addTask}
+          onCancel={() => this.setState({showAddTask: false})}
+        />
+
         <ImageBackground source={todayImage} style={styles.background}>
           <View style={styles.iconBar}>
             <TouchableOpacity onPress={this.toggleFilter}>
               <Icon
                 name={this.state.showDoneTasks ? 'eye' : 'eye-slash'}
                 size={20}
-                color={commonStyle.colors.secondary}
+                color={commonStyles.colors.secondary}
               />
             </TouchableOpacity>
           </View>
@@ -109,6 +129,13 @@ export default class Agenda extends Component {
             )}
           />
         </View>
+
+        <ActionButton
+          buttonColor={commonStyles.colors.today}
+          onPress={() => {
+            this.setState({showAddTask: true});
+          }}
+        />
       </View>
     );
   }
@@ -126,15 +153,15 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   title: {
-    fontFamily: commonStyle.fontFamily,
-    color: commonStyle.colors.secondary,
+    fontFamily: commonStyles.fontFamily,
+    color: commonStyles.colors.secondary,
     fontSize: 50,
     marginLeft: 20,
     marginBottom: 10,
   },
   subtitle: {
-    fontFamily: commonStyle.fontFamily,
-    color: commonStyle.colors.secondary,
+    fontFamily: commonStyles.fontFamily,
+    color: commonStyles.colors.secondary,
     fontSize: 20,
     marginLeft: 20,
     marginBottom: 30,
