@@ -1,17 +1,24 @@
 import React from 'react';
-import {StyleSheet, Text, View, TouchableWithoutFeedback} from 'react-native';
+import {
+  StyleSheet,
+  Text,
+  View,
+  TouchableWithoutFeedback,
+  TouchableOpacity,
+} from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import Swipeable from 'react-native-swipeable';
 import Moment from 'moment';
 import 'moment/locale/pt-br';
 
-import commonStyle from '../commonStyles';
+import commonStyles from '../commonStyles';
 
 export default props => {
   let check = null;
   if (props.doneAt !== null) {
     check = (
       <View style={styles.done}>
-        <Icon name="check" size={20} color={commonStyle.colors.secondary} />
+        <Icon name="check" size={20} color={commonStyles.colors.secondary} />
       </View>
     );
   } else {
@@ -21,20 +28,41 @@ export default props => {
   const descStyle =
     props.doneAt !== null ? {textDecorationLine: 'line-through'} : {};
 
-  return (
-    <View style={styles.container}>
-      <TouchableWithoutFeedback onPress={() => props.toggleTask(props.id)}>
-        <View style={styles.checkContainer}>{check}</View>
-      </TouchableWithoutFeedback>
-      <View>
-        <Text style={(styles.description, descStyle)}>{props.desc}</Text>
-        <Text style={styles.date}>
-          {Moment(props.estimateAt)
-            .locale('pt-br')
-            .format('ddd, D [de] MMMM [de] YYYY')}
-        </Text>
-      </View>
+  const leftContent = (
+    <View style={styles.excludeLeft}>
+      <Icon name="trash" size={20} color="#FFF" />
+      <Text style={styles.excludeText}>Excluir</Text>
     </View>
+  );
+
+  const rightContent = [
+    <TouchableOpacity
+      style={styles.excludeRight}
+      onPress={() => props.onDelete(props.id)}>
+      <Icon name="trash" size={30} color="#FFF" />
+    </TouchableOpacity>,
+  ];
+
+  return (
+    <Swipeable
+      leftActionActivationDistance={200}
+      onLeftActionRelease={() => props.onDelete(props.id)}
+      leftContent={leftContent}
+      rightButtons={rightContent}>
+      <View style={styles.container}>
+        <TouchableWithoutFeedback onPress={() => props.toggleTask(props.id)}>
+          <View style={styles.checkContainer}>{check}</View>
+        </TouchableWithoutFeedback>
+        <View>
+          <Text style={(styles.description, descStyle)}>{props.desc}</Text>
+          <Text style={styles.date}>
+            {Moment(props.estimateAt)
+              .locale('pt-br')
+              .format('ddd, D [de] MMMM [de] YYYY')}
+          </Text>
+        </View>
+      </View>
+    </Swipeable>
   );
 };
 
@@ -66,13 +94,34 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   description: {
-    fontFamily: commonStyle.fontFamily,
-    color: commonStyle.colors.mainText,
+    fontFamily: commonStyles.fontFamily,
+    color: commonStyles.colors.mainText,
     fontSize: 15,
   },
   date: {
-    fontFamily: commonStyle.fontFamily,
-    color: commonStyle.colors.subText,
+    fontFamily: commonStyles.fontFamily,
+    color: commonStyles.colors.subText,
     fontSize: 12,
+  },
+  excludeLeft: {
+    flex: 1,
+    backgroundColor: 'red',
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+  },
+  excludeRight: {
+    flex: 1,
+    backgroundColor: 'red',
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+    paddingLeft: 20,
+  },
+  excludeText: {
+    fontFamily: commonStyles.fontFamily,
+    color: '#FFF',
+    fontSize: 20,
+    margin: 10,
   },
 });
